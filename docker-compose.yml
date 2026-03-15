@@ -1,0 +1,26 @@
+services:
+  # ----------------------------------------
+  # 1. Ollama 服務
+  # ----------------------------------------
+  ollama:
+    image: ollama/ollama:0.17.8-rc4
+    container_name: my-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - D:/OLLAMA_MODEL:/root/.ollama
+
+  # ----------------------------------------
+  # 2. Python 服務
+  # ----------------------------------------
+  python-app:
+    image: sirius1018/cs146s_python:1.0
+    container_name: cs146s
+    command: tail -f /dev/null
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+    volumes:
+      - D:/CS146S:/cs146s
+    working_dir: /cs146s
+    depends_on:
+      - ollama
