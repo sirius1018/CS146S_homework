@@ -3,8 +3,11 @@ import re
 from typing import List, Callable
 from dotenv import load_dotenv
 from ollama import chat
+import ollama
 
 load_dotenv()
+ollama_url = os.getenv("OLLAMA_BASE_URL")
+client = ollama.Client(host=ollama_url)
 
 NUM_RUNS_TIMES = 5
 
@@ -96,7 +99,7 @@ def test_your_prompt(system_prompt: str, context_provider: Callable[[List[str]],
 
     for idx in range(NUM_RUNS_TIMES):
         print(f"Running test {idx + 1} of {NUM_RUNS_TIMES}")
-        response = chat(
+        response = client.chat(
             model="llama3.1:8b",
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -105,6 +108,7 @@ def test_your_prompt(system_prompt: str, context_provider: Callable[[List[str]],
             options={"temperature": 0.0},
         )
         output_text = response.message.content
+        
         code = extract_code_block(output_text)
         missing = [s for s in REQUIRED_SNIPPETS if s not in code]
         if not missing:

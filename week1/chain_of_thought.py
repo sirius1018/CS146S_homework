@@ -2,13 +2,17 @@ import os
 import re
 from dotenv import load_dotenv
 from ollama import chat
+import ollama
 
 load_dotenv()
+
+ollama_url = os.getenv("OLLAMA_BASE_URL")
+client = ollama.Client(host=ollama_url)
 
 NUM_RUNS_TIMES = 5
 
 # TODO: Fill this in!
-YOUR_SYSTEM_PROMPT = ""
+YOUR_SYSTEM_PROMPT = """"一步一步把推理過程顯示出來"""
 
 
 USER_PROMPT = """
@@ -47,7 +51,7 @@ def test_your_prompt(system_prompt: str) -> bool:
     """
     for idx in range(NUM_RUNS_TIMES):
         print(f"Running test {idx + 1} of {NUM_RUNS_TIMES}")
-        response = chat(
+        response = client.chat(
             model="llama3.1:8b",
             messages=[
                 {"role": "system", "content": system_prompt},
