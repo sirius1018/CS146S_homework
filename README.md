@@ -29,22 +29,32 @@ These steps work with Python 3.12.
 
 ------
 
-Install the developed enviroment
+# Use docker compose to set up the CS146S environment
 
 1. Use docker container
+   mkdir CS146S
+   cd CS146S
+   git clone https://github.com/mihail911/modern-software-dev-assignments.git
    docker run -it --rm -v D:\CS146S:/cs146s condaforge/miniforge3:26.1.0-0 
    mamba install conda-forge::poetry
-   cd modern-software-dev-assignments/
    
+   cd /cs146s/modern-software-dev-assignments/
    poetry config virtualenvs.create false
    poetry install --no-interaction
-   poetry install
 
 
+## 背景執行 docker-compose.yml
 docker compose up -d
-# 背景執行 docker-compose.yml
 
+## 進入 docker-compose 的 ollama bash
 docker-compose exec ollama bash
-# 進入 docker-compose 的 ollama bash
-# 下載 ollama model
 
+## 下載 ollama model
+ollama pull mistral-nemo:12b
+ollama pull llama3.1:8b
+
+or 
+
+在其他地方下載好後，模型資訊(blobs、manifests)要放入
+OLLAMA_MODEL\models\blobs
+OLLAMA_MODEL\models\manifests

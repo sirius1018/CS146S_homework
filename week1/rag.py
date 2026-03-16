@@ -95,8 +95,14 @@ def extract_code_block(text: str) -> str:
 def test_your_prompt(system_prompt: str, context_provider: Callable[[List[str]], List[str]]) -> bool:
     """Run up to NUM_RUNS_TIMES and return True if any output matches EXPECTED_OUTPUT."""
     context_docs = context_provider(CORPUS)
+    print(f"這是 context_doc : {context_docs}\n")
+    
     user_prompt = make_user_prompt(QUESTION, context_docs)
+    print(f"這是input QUESTION : {QUESTION}\n")
+    print(f"這是 user_prompt : {user_prompt}\n")
 
+
+    '''
     for idx in range(NUM_RUNS_TIMES):
         print(f"Running test {idx + 1} of {NUM_RUNS_TIMES}")
         response = client.chat(
@@ -121,7 +127,9 @@ def test_your_prompt(system_prompt: str, context_provider: Callable[[List[str]],
                 print(f"  - {s}")
             print("Generated code:\n" + code)
     return False
+    '''
 
 
 if __name__ == "__main__":
     test_your_prompt(YOUR_SYSTEM_PROMPT, YOUR_CONTEXT_PROVIDER)
+    
