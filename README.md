@@ -31,7 +31,8 @@ These steps work with Python 3.12.
 
 # Use docker compose to set up the CS146S environment
 
-1. Use docker container
+### Use docker container
+```
    mkdir CS146S
    cd CS146S
    git clone https://github.com/mihail911/modern-software-dev-assignments.git
@@ -41,15 +42,24 @@ These steps work with Python 3.12.
    cd /cs146s/modern-software-dev-assignments/
    poetry config virtualenvs.create false
    poetry install --no-interaction
-
+```
 
 ## 背景執行 docker-compose.yml
+```
 docker compose up -d
 
+or 
+
+docker compose -f project-specific-compose.yml up -d
+```
+
 ## 進入 docker-compose 的 ollama bash
-docker-compose exec ollama bash
+```
+docker compose exec ollama bash
+```
 
 ## 下載 ollama model
+```
 ollama pull mistral-nemo:12b
 ollama pull llama3.1:8b
 
@@ -58,3 +68,4 @@ or
 在其他地方下載好後，模型資訊(blobs、manifests)要放入
 OLLAMA_MODEL\models\blobs
 OLLAMA_MODEL\models\manifests
+```

@@ -40,7 +40,12 @@ QUESTION = (
 
 
 # TODO: Fill this in!
-YOUR_SYSTEM_PROMPT = ""
+YOUR_SYSTEM_PROMPT = """ 
+<role>你是一位資深的python 工程師</role>
+<task>只回答客戶問題，絕對不講廢話</task>
+
+
+"""
 
 
 # For this simple example
@@ -58,8 +63,11 @@ def YOUR_CONTEXT_PROVIDER(corpus: List[str]) -> List[str]:
     """TODO: Select and return the relevant subset of documents from CORPUS for this task.
 
     For example, return [] to simulate missing context, or [corpus[0]] to include the API docs.
+
+    找出並回傳 與 task 有相關的文件子集合
+
     """
-    return []
+    return [corpus[0]]
 
 
 def make_user_prompt(question: str, context_docs: List[str]) -> str:
@@ -96,13 +104,10 @@ def test_your_prompt(system_prompt: str, context_provider: Callable[[List[str]],
     """Run up to NUM_RUNS_TIMES and return True if any output matches EXPECTED_OUTPUT."""
     context_docs = context_provider(CORPUS)
     print(f"這是 context_doc : {context_docs}\n")
-    
+
     user_prompt = make_user_prompt(QUESTION, context_docs)
-    print(f"這是input QUESTION : {QUESTION}\n")
-    print(f"這是 user_prompt : {user_prompt}\n")
 
-
-    '''
+    # '''
     for idx in range(NUM_RUNS_TIMES):
         print(f"Running test {idx + 1} of {NUM_RUNS_TIMES}")
         response = client.chat(
@@ -114,7 +119,7 @@ def test_your_prompt(system_prompt: str, context_provider: Callable[[List[str]],
             options={"temperature": 0.0},
         )
         output_text = response.message.content
-        
+
         code = extract_code_block(output_text)
         missing = [s for s in REQUIRED_SNIPPETS if s not in code]
         if not missing:
@@ -127,9 +132,8 @@ def test_your_prompt(system_prompt: str, context_provider: Callable[[List[str]],
                 print(f"  - {s}")
             print("Generated code:\n" + code)
     return False
-    '''
+    # '''
 
 
 if __name__ == "__main__":
     test_your_prompt(YOUR_SYSTEM_PROMPT, YOUR_CONTEXT_PROVIDER)
-    

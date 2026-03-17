@@ -3,13 +3,37 @@ import re
 from collections import Counter
 from dotenv import load_dotenv
 from ollama import chat
+import ollama
 
 load_dotenv()
+ollama_url = os.getenv("OLLAMA_BASE_URL")
+client = ollama.Client(host=ollama_url)
 
 NUM_RUNS_TIMES = 5
 
+
 # TODO: Fill this in! Try to get as close to 100% correctness across all runs as possible.
-YOUR_SYSTEM_PROMPT = ""
+YOUR_SYSTEM_PROMPT = """
+<role>你是一位具有 self-consistancy 能力的數學家 </role>
+
+<think>
+能夠理解問題，使用不同推理方式解決問題
+推理的方式如下
+ <thinking_A> 看懂問題，並能一步一步解決問題 </thinking_A>
+ <thinking_B> 理解使用者的需求，並依照問題順序一步一步找出答案 </thinking_B>
+ <thinking_C> 根據問題做出藍圖，這個藍圖記錄每個推理步驟，最後得到答案 </thinking_C>
+</think>
+
+<task>
+使用三種方式 <thinking_A>、<thinking_B>、<thinking_C> 找出答案，並比較這三種方式的答案。
+使用多數決的方式決定答案，如果三種方式都不一樣，則答案就是 (錯! 錯! 錯!)
+</task>
+
+<outformat>
+Answer: <number>
+</outformat>
+
+"""
 
 USER_PROMPT = """
 Solve this problem, then give the final answer on the last line as "Answer: <number>".
@@ -47,7 +71,7 @@ def test_your_prompt(system_prompt: str) -> bool:
     answers: list[str] = []
     for idx in range(NUM_RUNS_TIMES):
         print(f"Running test {idx + 1} of {NUM_RUNS_TIMES}")
-        response = chat(
+        response = client.chat(
             model="llama3.1:8b",
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -56,6 +80,9 @@ def test_your_prompt(system_prompt: str) -> bool:
             options={"temperature": 1},
         )
         output_text = response.message.content
+
+        # print(f"LLM_Response : {output_text}\n")
+
         final_answer = extract_final_answer(output_text)
         print(f"Run {idx + 1} answer: {final_answer}")
         answers.append(final_answer.strip())
@@ -82,5 +109,3 @@ def test_your_prompt(system_prompt: str) -> bool:
 
 if __name__ == "__main__":
     test_your_prompt(YOUR_SYSTEM_PROMPT)
-
-

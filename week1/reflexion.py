@@ -3,8 +3,12 @@ import re
 from typing import Callable, List, Tuple
 from dotenv import load_dotenv
 from ollama import chat
+import ollama
 
 load_dotenv()
+
+ollama_url = os.getenv("OLLAMA_BASE_URL")
+client = ollama.Client(host=ollama_url)
 
 NUM_RUNS_TIMES = 1
 
@@ -107,7 +111,7 @@ def apply_reflexion(
 ) -> str:
     reflection_context = build_context(prev_code, failures)
     print(f"REFLECTION CONTEXT: {reflection_context}, {reflexion_prompt}")
-    response = chat(
+    response = client.chat(
         model="llama3.1:8b",
         messages=[
             {"role": "system", "content": reflexion_prompt},
