@@ -19,11 +19,15 @@ Keep the implementation minimal.
 """
 
 # TODO: Fill this in!
-YOUR_REFLEXION_PROMPT = ""
+YOUR_REFLEXION_PROMPT = """
+你是一位資深的 Python 軟體工程師，擅長透過測試結果進行 Code Review 並修復程式碼。
+你的任務是分析失敗的測試案例，找出程式碼中的邏輯錯誤，並提供「完整且修正後的 Python 程式碼」。
+請務必將修正後的程式碼實作放在單一個 ```python ... ``` 區塊中，不要輸出多餘的廢話。
+"""
 
 
 # Ground-truth test suite used to evaluate generated code
-SPECIALS = set("!@#$%^&*()-_")
+SPECIALS = set("!@#$%^&*()-_`")
 TEST_CASES: List[Tuple[str, bool]] = [
     ("Password1!", True),       # valid
     ("password1!", False),      # missing uppercase
@@ -84,7 +88,7 @@ def evaluate_function(func: Callable[[str], bool]) -> Tuple[bool, List[str]]:
 
 
 def generate_initial_function(system_prompt: str) -> str:
-    response = chat(
+    response = client.chat(
         model="llama3.1:8b",
         messages=[
             {"role": "system", "content": system_prompt},
@@ -100,7 +104,26 @@ def your_build_reflexion_context(prev_code: str, failures: List[str]) -> str:
 
     Return a string that will be sent as the user content alongside the reflexion system prompt.
     """
-    return ""
+
+    failures_text = "\n".join(f"- {f}" for f in failures)
+    # 把 failures 轉為 markdown 的條列式
+
+    user_reflexion_prompt = f"""
+        請根據以下的測試結果與歷史實作進行反思與修正。
+        <previous_implementation>
+            ```python
+            {prev_code}
+        </previous_implementation>
+        <failed_tests>
+            {failures_text}
+        </failed_tests>
+        
+        ⚠️ 重要限制：
+        請確保最終修正的程式碼包含在單一個 python  區塊內，不需要額外的解釋與註解。
+        
+        """
+
+    return user_reflexion_prompt
 
 
 def apply_reflexion(
@@ -122,15 +145,17 @@ def apply_reflexion(
     return extract_code_block(response.message.content)
 
 
-def run_reflexion_flow(
-    system_prompt: str,
-    reflexion_prompt: str,
-    build_context: Callable[[str, List[str]], str],
-) -> bool:
+def run_reflexion_flow(system_prompt: str, reflexion_prompt: str, build_context: Callable[[str, List[str]], str],
+                       ) -> bool:
+
     # 1) Generate initial function
     initial_code = generate_initial_function(system_prompt)
     print("Initial code:\n" + initial_code)
+
     func = load_function_from_code(initial_code)
+    print(func, "\n")
+    print(type(func), "\n")
+
     passed, failures = evaluate_function(func)
     if passed:
         print("SUCCESS (initial implementation passed all tests)")

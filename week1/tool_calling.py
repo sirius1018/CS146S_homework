@@ -5,8 +5,12 @@ from typing import Any, Dict, List, Optional, Tuple, Callable
 
 from dotenv import load_dotenv
 from ollama import chat
+import ollama
 
 load_dotenv()
+
+ollama_url = os.getenv("OLLAMA_BASE_URL")
+client = ollama.Client(host=ollama_url)
 
 NUM_RUNS_TIMES = 3
 
@@ -60,6 +64,7 @@ def add(a: int, b: int) -> int:
 def greet(name: str) -> str:
     return f"Hello, {name}!"
 
+
 # Tool registry for dynamic execution by name
 TOOL_REGISTRY: Dict[str, Callable[..., str]] = {
     "output_every_func_return_type": output_every_func_return_type,
@@ -100,7 +105,7 @@ def extract_tool_call(text: str) -> Dict[str, Any]:
 
 
 def run_model_for_tool_call(system_prompt: str) -> Dict[str, Any]:
-    response = chat(
+    response = client.chat(
         model="llama3.1:8b",
         messages=[
             {"role": "system", "content": system_prompt},
