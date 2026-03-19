@@ -75,7 +75,13 @@ TOOL_REGISTRY: Dict[str, Callable[..., str]] = {
 # ==========================
 
 # TODO: Fill this in!
-YOUR_SYSTEM_PROMPT = ""
+YOUR_SYSTEM_PROMPT = """
+You must format tool calls in JSON.
+Return ONLY a single JSON object with fields:
+- tool: one of ["output_every_func_return_type"]
+- args: an object with optional "file_path" (string). Use "" to refer to this file.
+Do not include any extra text or ANYTHING else.
+"""
 
 
 def resolve_path(p: str) -> str:
@@ -98,7 +104,9 @@ def extract_tool_call(text: str) -> Dict[str, Any]:
         if text.lower().startswith("json\n"):
             text = text[5:]
     try:
+        print(f">> 執行工具內容 : {text}")
         obj = json.loads(text)
+        print(f">> Json 成功 {obj}")
         return obj
     except json.JSONDecodeError:
         raise ValueError("Model did not return valid JSON for the tool call")
@@ -114,6 +122,8 @@ def run_model_for_tool_call(system_prompt: str) -> Dict[str, Any]:
         options={"temperature": 0.3},
     )
     content = response.message.content
+    print(f">> User prompt : {content}")
+
     return extract_tool_call(content)
 
 
@@ -149,6 +159,8 @@ def test_your_prompt(system_prompt: str) -> bool:
     for _ in range(NUM_RUNS_TIMES):
         try:
             call = run_model_for_tool_call(system_prompt)
+            print(f">> run_model_for_tool_call : {call}")
+
         except Exception as exc:
             print(f"Failed to parse tool call: {exc}")
             continue
