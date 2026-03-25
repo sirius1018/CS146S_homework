@@ -20,7 +20,7 @@ services:
     environment:
       - OLLAMA_BASE_URL=http://ollama:11434
     volumes:
-      - D:/CS146S:/cs146s
+      - D:/CS146S/CS146S_homework:/cs146s
     working_dir: /cs146s
     depends_on:
       - ollama
